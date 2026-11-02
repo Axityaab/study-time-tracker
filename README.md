@@ -27,13 +27,12 @@ The first version will focus on reliably recording study sessions, storing the d
 - **Version Control:** Git and GitHub
 
 ## System Diagram
-
-![System Diagram](docs/system-diagram.png)
+![System Diagram](system-diagram.png)
 
 ## Project Planning
 
-- [Eisenhower Matrix](docs/eisenhower-matrix.pdf)
-- [System Diagram Source](docs/system-diagram.drawio)
+- [Eisenhower Matrix](eisenhower-matrix.pdf)
+- [System Diagram Source](system-diagram.drawio)
 
 ## Roadmap
 
