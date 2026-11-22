@@ -72,6 +72,45 @@ def add_study_session():
 
     print("Study session saved successfully.")
 
+def view_all_sessions():
+    if not DATA_FILE.exists():
+        print('''
+        =============================
+             NO STUDY SESSIONS
+        =============================
+        No study sessions have been recorded yet.
+        ''')
+        return
+
+    with DATA_FILE.open("r", newline="") as file:
+        reader = csv.DictReader(file)
+        sessions = list(reader)
+
+    if not sessions:
+        print('''
+        =============================
+             NO STUDY SESSIONS
+        =============================
+        No study sessions have been recorded yet.
+        ''')
+        return
+
+    print('''
+    =============================
+          ALL STUDY SESSIONS
+    =============================
+    ''')
+
+    for number, session in enumerate(sessions, start=1):
+        print(f"""
+    Session {number}
+    -----------------------------
+    Subject: {session["subject"]}
+    Duration: {session["duration"]} minutes
+    Date: {session["date"]}
+    Notes: {session["notes"] if session["notes"] else "None"}
+    """)
+
 def main():
     while True:
         display_menu()
@@ -80,11 +119,14 @@ def main():
         if choice == 1:
             add_study_session()
 
-        if choice == 8:
+        elif choice == 2:
+            view_all_sessions()
+
+        elif choice == 8:
             print("Goodbye!!")
             break
 
-        elif choice in [2,3,4,5,6,7]:
+        elif choice in [3,4,5,6,7]:
             print("Features coming soon")
         else:
             print("Invalid choice")
