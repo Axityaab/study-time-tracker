@@ -110,7 +110,54 @@ def view_all_sessions():
     Date: {session["date"]}
     Notes: {session["notes"] if session["notes"] else "None"}
     """)
+def view_study_summary():
+    if not DATA_FILE.exists():
+        print("""
+=============================
+      STUDY SUMMARY
+=============================
 
+No study sessions have been recorded yet.
+""")
+        return
+
+    totals = {}
+    total_minutes = 0
+
+    with DATA_FILE.open("r", newline="") as file:
+        reader = csv.DictReader(file)
+
+        for session in reader:
+            subject = session["subject"]
+            duration = int(session["duration"])
+
+            if subject in totals:
+                totals[subject] += duration
+            else:
+                totals[subject] = duration
+
+            total_minutes += duration
+
+    if not totals:
+        print("""
+=============================
+      STUDY SUMMARY
+=============================
+
+No study sessions have been recorded yet.
+""")
+        return
+
+    print("""
+=============================
+      STUDY SUMMARY
+=============================
+""")
+
+    for subject, minutes in totals.items():
+        print(f"{subject}: {minutes} minutes")
+
+    print(f"\nTotal Study Time: {total_minutes} minutes")
 def main():
     while True:
         display_menu()
@@ -122,11 +169,14 @@ def main():
         elif choice == 2:
             view_all_sessions()
 
+        elif choice == 3:
+            view_study_summary()
+
         elif choice == 8:
             print("Goodbye!!")
             break
 
-        elif choice in [3,4,5,6,7]:
+        elif choice in [4,5,6,7]:
             print("Features coming soon")
         else:
             print("Invalid choice")
