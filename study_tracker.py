@@ -161,22 +161,22 @@ No study sessions have been recorded yet.
 def main():
     while True:
         display_menu()
-        choice = int(input("Choose an option (1-8): "))
+        choice = input("Choose an option (1-8): ").strip()
 
-        if choice == 1:
+        if choice == '1':
             add_study_session()
 
-        elif choice == 2:
+        elif choice == '2':
             view_all_sessions()
 
-        elif choice == 3:
+        elif choice == '3':
             view_study_summary()
 
-        elif choice == 8:
+        elif choice == '8':
             print("Goodbye!!")
             break
 
-        elif choice in [4,5,6,7]:
+        elif choice in ['4','5','6','7']:
             print("Features coming soon")
         else:
             print("Invalid choice")
