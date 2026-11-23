@@ -158,6 +158,65 @@ No study sessions have been recorded yet.
         print(f"{subject}: {minutes} minutes")
 
     print(f"\nTotal Study Time: {total_minutes} minutes")
+
+def show_analytics():
+    if not DATA_FILE.exists():
+        print("""
+=============================
+        STUDY ANALYTICS
+=============================
+
+No study sessions have been recorded yet.
+""")
+        return
+
+    with DATA_FILE.open("r", newline="") as file:
+        reader = csv.DictReader(file)
+        sessions = list(reader)
+
+    if not sessions:
+        print("""
+=============================
+        STUDY ANALYTICS
+=============================
+
+No study sessions have been recorded yet.
+""")
+        return
+
+    total_sessions = len(sessions)
+    total_minutes = 0
+    subject_totals = {}
+
+    for session in sessions:
+        duration = int(session["duration"])
+        subject = session["subject"]
+
+        total_minutes += duration
+
+        if subject in subject_totals:
+            subject_totals[subject] += duration
+        else:
+            subject_totals[subject] = duration
+
+    average_session = total_minutes / total_sessions
+
+    most_studied_subject = max(
+        subject_totals,
+        key=subject_totals.get
+    )
+
+    print(f"""
+=============================
+        STUDY ANALYTICS
+=============================
+
+Total Sessions: {total_sessions}
+Total Study Time: {total_minutes} minutes
+Average Session: {average_session:.1f} minutes
+Most Studied Subject: {most_studied_subject}
+""")
+
 def main():
     while True:
         display_menu()
@@ -171,12 +230,14 @@ def main():
 
         elif choice == '3':
             view_study_summary()
+        elif choice == '6':
+            show_analytics()
 
         elif choice == '8':
             print("Goodbye!!")
             break
-
-        elif choice in ['4','5','6','7']:
+        
+        elif choice in ['4','5','7']:
             print("Features coming soon")
         else:
             print("Invalid choice")
