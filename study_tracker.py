@@ -1,5 +1,5 @@
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 def display_menu():
@@ -159,6 +159,31 @@ No study sessions have been recorded yet.
 
     print(f"\nTotal Study Time: {total_minutes} minutes")
 
+def calculate_study_streak(sessions):
+    study_dates = set()
+
+    for session in sessions:
+        date = datetime.strptime(session["date"], "%Y-%m-%d").date()
+        study_dates.add(date)
+
+    if not study_dates:
+        return 0
+
+    latest_date = max(study_dates)
+    today = datetime.now().date()
+
+    if latest_date < today - timedelta(days=1):
+        return 0
+
+    streak = 1
+    current_date = latest_date - timedelta(days=1)
+
+    while current_date in study_dates:
+        streak += 1
+        current_date -= timedelta(days=1)
+
+    return streak
+
 def show_analytics():
     if not DATA_FILE.exists():
         print("""
@@ -205,7 +230,8 @@ No study sessions have been recorded yet.
         subject_totals,
         key=subject_totals.get
     )
-
+    study_streak = calculate_study_streak(sessions)
+    day_word = "day" if study_streak == 1 else "days"
     print(f"""
 =============================
         STUDY ANALYTICS
@@ -215,6 +241,7 @@ Total Sessions: {total_sessions}
 Total Study Time: {total_minutes} minutes
 Average Session: {average_session:.1f} minutes
 Most Studied Subject: {most_studied_subject}
+Current Study Streak: {study_streak} {day_word}
 """)
 
 def main():
