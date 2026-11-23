@@ -184,6 +184,21 @@ def calculate_study_streak(sessions):
 
     return streak
 
+def display_subject_chart(subject_totals):
+    print("""
+=============================
+      TIME BY SUBJECT
+=============================
+""")
+    max_minutes = max(subject_totals.values())
+
+    for subject, minutes in subject_totals.items():
+        max_minutes = max(subject_totals.values())
+        bar_length = max(1, round((minutes / max_minutes) * 25))
+        bar = "█" * bar_length
+
+        print(f"{subject:<20} {bar} {minutes} min")
+
 def show_analytics():
     if not DATA_FILE.exists():
         print("""
@@ -243,6 +258,7 @@ Average Session: {average_session:.1f} minutes
 Most Studied Subject: {most_studied_subject}
 Current Study Streak: {study_streak} {day_word}
 """)
+    display_subject_chart(subject_totals)
 
 def main():
     while True:
