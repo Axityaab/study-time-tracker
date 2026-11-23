@@ -260,6 +260,67 @@ Current Study Streak: {study_streak} {day_word}
 """)
     display_subject_chart(subject_totals)
 
+def delete_session():
+    if not DATA_FILE.exists():
+        print("""
+=============================
+        DELETE SESSION
+=============================
+
+No study sessions have been recorded yet.
+""")
+        return
+
+    with DATA_FILE.open("r", newline="") as file:
+        reader = csv.DictReader(file)
+        sessions = list(reader)
+
+    if not sessions:
+        print("No study sessions have been recorded yet.")
+        return
+
+    print("""
+=============================
+        DELETE SESSION
+=============================
+""")
+
+    for number, session in enumerate(sessions, start=1):
+        print(
+            f"{number}. {session['subject']} - "
+            f"{session['duration']} min - {session['date']}"
+        )
+
+    while True:
+        try:
+            choice = int(input("\nEnter the session number to delete: "))
+
+            if choice < 1 or choice > len(sessions):
+                print("Invalid session number.")
+                continue
+
+            break
+
+        except ValueError:
+            print("Please enter a valid number.")
+
+    deleted_session = sessions.pop(choice - 1)
+
+    with DATA_FILE.open("w", newline="") as file:
+        writer = csv.writer(file)
+
+        writer.writerow(["subject", "duration", "date", "notes"])
+
+        for session in sessions:
+            writer.writerow([
+                session["subject"],
+                session["duration"],
+                session["date"],
+                session["notes"]
+            ])
+
+    print(f"\nDeleted: {deleted_session['subject']} - {deleted_session['duration']} minutes")
+
 def main():
     while True:
         display_menu()
@@ -275,12 +336,14 @@ def main():
             view_study_summary()
         elif choice == '6':
             show_analytics()
+        elif choice == '7':
+            delete_session()
 
         elif choice == '8':
             print("Goodbye!!")
             break
         
-        elif choice in ['4','5','7']:
+        elif choice in ['4','5']:
             print("Features coming soon")
         else:
             print("Invalid choice")
