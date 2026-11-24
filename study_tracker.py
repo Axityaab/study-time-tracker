@@ -321,6 +321,64 @@ No study sessions have been recorded yet.
 
     print(f"\nDeleted: {deleted_session['subject']} - {deleted_session['duration']} minutes")
 
+def weekly_summary():
+    if not DATA_FILE.exists():
+        print("""
+=============================
+        WEEKLY SUMMARY
+=============================
+
+No study sessions have been recorded yet.
+""")
+        return
+
+    today = datetime.now().date()
+    week_start = today - timedelta(days=today.weekday())
+    week_end = week_start + timedelta(days=6)
+
+    subject_totals = {}
+    total_minutes = 0
+    session_count = 0
+
+    with DATA_FILE.open("r", newline="") as file:
+        reader = csv.DictReader(file)
+
+        for session in reader:
+            session_date = datetime.strptime(
+                session["date"], "%Y-%m-%d"
+            ).date()
+
+            if week_start <= session_date <= week_end:
+                subject = session["subject"]
+                duration = int(session["duration"])
+
+                if subject in subject_totals:
+                    subject_totals[subject] += duration
+                else:
+                    subject_totals[subject] = duration
+
+                total_minutes += duration
+                session_count += 1
+
+    print(f"""
+=============================
+        WEEKLY SUMMARY
+=============================
+
+Week: {week_start} to {week_end}
+""")
+
+    if session_count == 0:
+        print("No study sessions recorded this week.")
+        return
+
+    for subject, minutes in subject_totals.items():
+        print(f"{subject}: {minutes} minutes")
+
+    print(f"""
+Total Sessions: {session_count}
+Total Study Time: {total_minutes} minutes
+""")
 def main():
     while True:
         display_menu()
@@ -334,6 +392,8 @@ def main():
 
         elif choice == '3':
             view_study_summary()
+        elif choice == "4":
+            weekly_summary()
         elif choice == '6':
             show_analytics()
         elif choice == '7':
@@ -343,7 +403,7 @@ def main():
             print("Goodbye!!")
             break
         
-        elif choice in ['4','5']:
+        elif choice == '5':
             print("Features coming soon")
         else:
             print("Invalid choice")
