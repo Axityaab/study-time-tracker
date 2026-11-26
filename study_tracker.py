@@ -19,7 +19,7 @@ def display_menu():
     ''')
 
 DATA_FILE = Path("study_sessions.csv")
-
+GOALS_FILE = Path("study_goals.csv")
 
 def add_study_session():
     print("\n--- Add Study Session ---")
@@ -379,6 +379,145 @@ Week: {week_start} to {week_end}
 Total Sessions: {session_count}
 Total Study Time: {total_minutes} minutes
 """)
+
+def load_goals():
+    goals = {}
+
+    if not GOALS_FILE.exists():
+        return goals
+
+    with GOALS_FILE.open("r", newline="") as file:
+        reader = csv.DictReader(file)
+
+        for row in reader:
+            goals[row["subject"]] = int(row["weekly_goal"])
+
+    return goals
+
+
+def save_goals(goals):
+    with GOALS_FILE.open("w", newline="") as file:
+        writer = csv.writer(file)
+
+        writer.writerow(["subject", "weekly_goal"])
+
+        for subject, minutes in goals.items():
+            writer.writerow([subject, minutes])
+
+
+def set_study_goal():
+    print("""
+=============================
+        SET STUDY GOAL
+=============================
+""")
+
+    subject = input("Subject: ").strip()
+
+    if not subject:
+        print("Subject cannot be empty.")
+        return
+
+    while True:
+        try:
+            goal = int(input("Weekly goal in minutes: "))
+
+            if goal <= 0:
+                print("Goal must be greater than 0.")
+                continue
+
+            break
+
+        except ValueError:
+            print("Please enter a valid number.")
+
+    goals = load_goals()
+    goals[subject] = goal
+    save_goals(goals)
+
+    print(f"\nWeekly goal for {subject} set to {goal} minutes.")
+
+def view_goal_progress():
+    goals = load_goals()
+
+    if not goals:
+        print("""
+=============================
+        STUDY GOALS
+=============================
+
+No study goals have been created yet.
+""")
+        return
+
+    today = datetime.now().date()
+    week_start = today - timedelta(days=today.weekday())
+    week_end = week_start + timedelta(days=6)
+
+    weekly_totals = {}
+
+    if DATA_FILE.exists():
+        with DATA_FILE.open("r", newline="") as file:
+            reader = csv.DictReader(file)
+
+            for session in reader:
+                session_date = datetime.strptime(
+                    session["date"], "%Y-%m-%d"
+                ).date()
+
+                if week_start <= session_date <= week_end:
+                    subject = session["subject"]
+                    duration = int(session["duration"])
+
+                    if subject in weekly_totals:
+                        weekly_totals[subject] += duration
+                    else:
+                        weekly_totals[subject] = duration
+
+    print(f"""
+=============================
+        STUDY GOALS
+=============================
+
+Week: {week_start} to {week_end}
+""")
+
+    for subject, goal in goals.items():
+        studied = weekly_totals.get(subject, 0)
+        percentage = (studied / goal) * 100
+
+        print(
+            f"{subject}: {studied} / {goal} minutes "
+            f"({percentage:.1f}%)"
+        )
+
+def study_goals():
+    while True:
+        print("""
+=============================
+        STUDY GOALS
+=============================
+
+1. Set or Update Goal
+2. View Goal Progress
+3. Back to Main Menu
+""")
+
+        choice = input("Choose an option (1-3): ").strip()
+
+        if choice == "1":
+            set_study_goal()
+
+        elif choice == "2":
+            view_goal_progress()
+
+        elif choice == "3":
+            break
+
+        else:
+            print("Invalid choice. Please enter a number from 1 to 3.")
+
+
 def main():
     while True:
         display_menu()
@@ -404,7 +543,7 @@ def main():
             break
         
         elif choice == '5':
-            print("Features coming soon")
+            study_goals()
         else:
             print("Invalid choice")
 
